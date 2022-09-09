@@ -89,63 +89,65 @@ You will need to provide detailed documentation of your API endpoints including 
   "6": "Sports"
 }
 ```
+
 `GET '/api/v1.0/questions'`
 
-- Fetches a dictionary of categories and questions in which the keys are the id, answer, question, difficulty, category   and the value is the corresponding string of the each keys
+- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- Fetches a list of objects which is question formatted in question, answer, category, difficulty, and id
 - Request Arguments: None
-- Returns: An object with a double keys, `categories`, `questions` , that contains respectivily an object of `Keys: category_String`, `Keys: questions_values` key: value pairs.
+- Returns: An object with a double keys, `categories`, `questions`, that contains an object of `id: category_string` key: value pairs for categories.
 
 ```json
 {
-  "categories": [
-    {
-      "id": 1,
-      "type": "Science"
-    },],
-    "questions": [
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "questions": [
     {
       "answer": "Apollo 13",
       "category": 5,
       "difficulty": 4,
       "id": 2,
       "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
-    },],
+    },
 }
 ```
 
-`DELETE '/api/v1.0/questions/4'`
+`POST '/questions'`
+- create a new question by providing an a body json :
+```json
+  {
+    "question":  "Voici une chaîne de nouvelle question",
+    "réponse":  "Voici une chaîne de nouvelle réponse",
+    "difficulté": 1,
+    "catégorie": 3,
+  }
+```
+-we can also search for a questions by providing the search term relative to question, to do it we provide an json object: 
 
 ```json
-{
-  "success": true
-}
+  {
+   "search": "title"
+  }
 ```
 
-`POST '/api/v1.0/questions'`
+- Returns: just a ststus code
 
-- Create new question by providing a json : for exemple 
+`DELETE '/questions/<int:question_id>'`
+- Delete a specific question by providing the question id
+- Returns: just a ststus code
 
-```json
-{
-  "id": 80,
-  "question": "la tecchnologie?",
-  "answer": "un peu de science",
-  "category": 5,
-  "difficulty": 10
-}
-
-```
+`GET '/categories/<int:categorie_id>/questions'`
+- Fetches questions relatives to a specific categorie by providing the id of categorie
+- Returns: An object with a double keys, `categories`, `questions`, that contains an object of `id: category_string` key: value pairs for categ
 
 ```json
-{
-  "success": true
-}
-```
-
-`GET '/api/v1.0/categories/<int:categorie_id>/questions`
-
-```json
-{
+ {
   "current_category": "History",
   "questions": [
     {
@@ -162,29 +164,32 @@ You will need to provide detailed documentation of your API endpoints including 
       "id": 9,
       "question": "What boxer's original name is Cassius Clay?"
     },],
-
   "success": true,
-  "total_questions": 23
-  }
+  "total_questions": 4
+ }
 ```
 
-
-`POST '/api/v1.0/quizzies`
+`POST '/quizzes'`
+- Fetches a next questions relative to a quizze by providing to parametters as a body json :
+```json
+  {
+   "previous_questions": [1, 4, 20, 15],
+   "quiz_category": "current category"
+  }
+```
+- Returns: An object with a double keys, `categories`, `questions`, that contains an object of `id: category_string` key: value pairs for categories.
 
 ```json
   {
-  "question": {
-    "answer": "Alexander Fleming",
-    "category": 1,
-    "difficulty": 3,
-    "id": 21,
-    "question": "Who discovered penicillin?"
+    "question": {
+    "id": 1,
+    "question": "Ceci est une question",
+    "réponse": "Ceci est une réponse",
+    "difficulté": 5,
+    "catégorie": 4
   }
 }
 ```
-
-
-
 ## Testing
 
 Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.

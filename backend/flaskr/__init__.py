@@ -53,14 +53,12 @@ def create_app(test_config=None):
     @app.route("/categories")
     def get_categories():
       categories = Category.query.all()
-      categorie_formate = [categorie.format() for categorie in categories]
-
-      if len(categorie_formate) == 0:
-        abort(404)
+      categorie_object = {}
+      for categorie in categories:
+        categorie_object[str(categorie.id)] = categorie.type
 
       return jsonify({
-        "success": True,
-        "categories": categorie_formate
+        "categorie": categorie_object
       })
       
     """
@@ -78,16 +76,19 @@ def create_app(test_config=None):
 
     @app.route("/questions")
     def get_questions():
-        selection = Question.query.order_by(Question.id).all()
-        categories = [categorie.format() for categorie in Category.query.all()]
+        selection = Question.query.order_by(Question.id).all() 
         current_questions = paginate_questions(request, selection)
+
+        categories = Category.query.all()
+        categorie_object = {}
+        for categorie in categories:
+         categorie_object[str(categorie.id)] = categorie.type
 
         if len(current_questions) == 0:
             abort(404)
         return jsonify({
-            "success": True,
             "questions": current_questions,
-            "categories": categories,
+            "categories": categorie_object,
             "total_questions": len(Question.query.all())
         })
 
@@ -133,13 +134,26 @@ def create_app(test_config=None):
         new_answer = body.get("answer", None)
         new_category = body.get("category", None)
         new_difficulty = body.get("difficulty", None)
+        search = body.get("search", None)
 
         try:
-              question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
-              question.insert()
-              return jsonify({
-                "success": True
-              })
+            if search:
+                questions = Question.query.filter(Question.question.ilike("%{}%".format(search)))
+                question_format = [question.format() for question in questions]
+
+                return jsonify({
+                    "questions": question_format,
+                    "total_question": len(question_format),
+                })
+            
+            else:
+                question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+                question.insert()
+                return jsonify({
+                    "success": True
+                })
+                
+              
         except:
             abort(422)
 
@@ -166,7 +180,6 @@ def create_app(test_config=None):
             print(question_format)
 
             return jsonify({
-                "success": True,
                 "questions": question_format,
                 "total_question": len(question_format),
             })
